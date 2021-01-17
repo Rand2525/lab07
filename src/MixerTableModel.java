@@ -1,21 +1,20 @@
 import support.Mixer;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class MixerTableModel extends AbstractTableModel {
 
     private String[] columnNames = {"Mixer"};
-    private List<Mixer> listaMixer = new ArrayList<>();
+    private List<Mixer> listaMixer;
 
     public MixerTableModel(List<Mixer> listaMixer) {
         this.listaMixer = listaMixer;
     }
 
-    public void add(Mixer dane) {
-        this.listaMixer.add(dane);
+    public void add(Mixer mixer) {
+        this.listaMixer.add(mixer);
         this.fireTableRowsInserted(listaMixer.size() - 1, listaMixer.size());
     }
 
@@ -27,11 +26,6 @@ public class MixerTableModel extends AbstractTableModel {
                 it.remove();
         }
 
-//        for (Mixer mix : listaMixer) {
-//            if (mix.getName().equals(dane.getName())) {
-//                listaMixer.remove(mix);
-//            }
-//        }
         this.fireTableRowsInserted(listaMixer.size() - 1, listaMixer.size());
 
     }

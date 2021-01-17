@@ -20,7 +20,7 @@ public class Manager extends JFrame implements IManager {
     private static IControlCenter ic;
     private JPanel panelGlowny;
     private JButton startButton;
-    private JButton startButton1;
+    private JButton stopButton;
     private JTable iSiteTable;
     private JTable mixerTable;
 
@@ -38,41 +38,42 @@ public class Manager extends JFrame implements IManager {
         try {
             Registry reg = LocateRegistry.getRegistry("localhost",3000);
             ic = (IControlCenter) reg.lookup("ControlCenter");
-            Manager m = new Manager();
-            IManager im = (IManager) UnicastRemoteObject.exportObject(m, 0);
-            reg.rebind("Manager",m);
+            Manager manager = new Manager();
+            IManager im = (IManager) UnicastRemoteObject.exportObject(manager, 0);
+//            reg.rebind("Manager",manager);
             System.out.println("Manager is ready");
             ic.subscribe(im);
 
 
-            m.setContentPane(m.panelGlowny);
-            m.setBounds(600,300,600,300);
-            m.setVisible(true);
+            manager.setContentPane(manager.panelGlowny);
+            manager.setBounds(600,300,600,300);
+            manager.setDefaultCloseOperation(EXIT_ON_CLOSE);
+            manager.setVisible(true);
         } catch (RemoteException | NotBoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
-//        JFrame manager = new JFrame("Manager");
-//        manager.setContentPane(new Manager().panelGlowny);
-//        manager.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-//        manager.setBounds(600,300,600,300);
-//        manager.setVisible(true);
     }
     @Override
-    public void notify(ISite is, Boolean s) throws RemoteException {
+    public void notify(ISite iSite, Boolean add) throws RemoteException {
 
-        ((ISiteTableModel) iSiteTable.getModel()).add(is);
+        if(add == true)
+        ((ISiteTableModel) iSiteTable.getModel()).add(iSite);
+        else
+            if(add == false)
+                ((ISiteTableModel) iSiteTable.getModel()).remove(iSite);
+
         System.out.println("notify(ISite,Boolean) was called");
 
     }
 
     @Override
-    public void notify(Mixer mi, Boolean s) throws RemoteException {
-        if (s == true) {
-            ((MixerTableModel) (mixerTable.getModel())).add(mi);
-        } else if (s == false) {
-            ((MixerTableModel) (mixerTable.getModel())).remove(mi);
+    public void notify(Mixer mixer, Boolean add) throws RemoteException {
+        if (add == true) {
+            ((MixerTableModel) (mixerTable.getModel())).add(mixer);
+        } else if (add == false) {
+            ((MixerTableModel) (mixerTable.getModel())).remove(mixer);
         }
         System.out.println("notify(Mixer,Boolean)was called");
 

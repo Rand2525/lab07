@@ -57,19 +57,27 @@ public class ControlCenter extends UnicastRemoteObject implements IControlCenter
         else
         {
             listaISite.add(is);
-            im.notify(is,true);
+            if (im != null) {
+                im.notify(is, true);
+            }
+//            im.notify(is,true);
             return true;
         }
     }
 
     @Override
-    public Boolean remove(ISite is) throws RemoteException {
-        if(isISite(is)==false)
+    public Boolean remove(ISite iSite) throws RemoteException {
+        if(isISite(iSite)==false)
             return false;
         else
         {
-            listaISite.remove(is);
-            im.notify(is,false);
+            for (Iterator<ISite> it = listaISite.iterator(); it.hasNext();) {
+                ISite next = it.next();
+                if(next.getName().equals(iSite.getName()))
+                    it.remove();}
+            if (im != null) {
+                im.notify(iSite, false);
+            }
             return true;
         }
     }
@@ -107,12 +115,7 @@ public class ControlCenter extends UnicastRemoteObject implements IControlCenter
 
     @Override
     public void subscribe(IManager im) throws RemoteException {
-        Registry reg =LocateRegistry.getRegistry("localhost",3000);
-        try {
-            this.im= (IManager) reg.lookup("Manager");
-        } catch (NotBoundException e) {
-            e.printStackTrace();
-        }
+        this.im=im;
         listaIManager.add(im);
     }
 
