@@ -23,6 +23,8 @@ public class Site extends JFrame implements ISite {
     private JTextField nameTextField;
     private JPanel panelGlowny;
     private JButton dodajButton;
+    private int[] lightings = {1,2,3,4,5,6,7,8};
+    private IlluminationFrame illuminationFrame;
 
     private static Site site;
 
@@ -38,7 +40,8 @@ public class Site extends JFrame implements ISite {
                 }
                 site.dispose();
                 JFrame illumination = new JFrame();
-                illumination.setContentPane(new IlluminationFrame(illumination,iSite).getPanelGlowny());
+                illuminationFrame = new IlluminationFrame(illumination,iSite);
+                illumination.setContentPane(illuminationFrame.getPanelGlowny());
                 illumination.setBounds(600,300,600,300);
                 illumination.setVisible(true);
                 illumination.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -66,6 +69,32 @@ public class Site extends JFrame implements ISite {
     @Override
     public void start() throws RemoteException {
         start=true;
+        new Thread(new Runnable() {
+            public void run() {
+                while (start) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            if(mixer==null)
+                            {
+                                illuminationFrame.defaultAlgorithm();
+                                SwingUtilities.updateComponentTreeUI(illuminationFrame);
+                            }
+                            else {
+                                mixer.mix(lightings);
+                                illuminationFrame.changeLights(lightings);
+                                SwingUtilities.updateComponentTreeUI(illuminationFrame);
+                            }
+                        }
+                    });
+
+                    try {
+
+                        java.lang.Thread.sleep(500);
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        }).start();
 
     }
 

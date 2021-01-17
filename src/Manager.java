@@ -1,3 +1,5 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -24,11 +26,93 @@ public class Manager extends JFrame implements IManager {
     private JTable iSiteTable;
     private JTable mixerTable;
 
+    private ISite iSiteChecked=null;
+    private Mixer mixerChecked=null;
     public Manager() throws RemoteException {
         listaISite=ic.getAllSites();
         listaMixer=ic.getAllMixers();
         iSiteTable.setModel(new ISiteTableModel(listaISite));
         mixerTable.setModel(new MixerTableModel(listaMixer));
+        startButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                for(ISite iSite : listaISite)
+                {
+                    if(iSiteTable.getSelectedRow()==-1)
+                    {
+                        continue;
+                    }
+                    else {
+                        try {
+                            if (iSite.getName().equals(iSiteTable.getValueAt(iSiteTable.getSelectedRow(), 0))) {
+                                iSiteChecked = iSite;
+                                System.out.println(iSiteChecked.getName());
+                            }
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                for(Mixer mixer : listaMixer)
+                {
+                    if(mixerTable.getSelectedRow()==-1)
+                    {
+                        mixerChecked=null;
+                        continue;
+
+                    }
+                    else {
+                        System.out.println(mixerTable.getSelectedRow());
+                        if (mixer.getName().equals(mixerTable.getValueAt(mixerTable.getSelectedRow(), 0))) {
+                            mixerChecked = mixer;
+                            System.out.println(mixerChecked.getName());
+                        }
+                    }
+                }
+                if(iSiteChecked==null)
+                    JOptionPane.showMessageDialog(null,"Nie wybrano zadnego ISite");
+                else
+                {
+                    try {
+                        iSiteChecked.setMixer(mixerChecked);
+                        iSiteChecked.start();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });
+        stopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                for(ISite iSite : listaISite)
+                {
+                    try {
+                        if(iSite.getName().equals(iSiteTable.getValueAt(iSiteTable.getSelectedRow(),0)))
+                        {
+                            iSiteChecked=iSite;
+                            System.out.println(iSiteChecked.getName());
+                        }
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+                if(iSiteChecked==null)
+                    JOptionPane.showMessageDialog(null,"Nie wybrano zadnego ISite");
+                else {
+                    try {
+                        iSiteChecked.stop();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+                }
+
+        });
     }
 
 
